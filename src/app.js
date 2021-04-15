@@ -38,6 +38,24 @@ app.get("/flips", (req, res) => {
   res.json({ data: flips });
 });
 
+//Add flips to the DB
+let lastFlipId = flips.reduce((maxId, flip) => Math.max(maxId, flip.id), 0);
+
+app.post("/flips", (req, res, next) => {
+  const { data: { result }= {} } = req.body;
+  if (result) {
+  const newFlip = {
+    id: ++lastFlipId,
+    result,
+  };
+  flips.push(newFlip);
+  counts[result] = counts[result] + 1;
+  res.status(201).json({ data: newFlip });
+  } else {
+    res.sendStatus(400);
+  }
+})
+
 // Not found handler
 app.use((request, response, next) => {
   next(`Not found: ${request.originalUrl}`);
